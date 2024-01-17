@@ -1,4 +1,4 @@
-from Roulette import BetType, ColorThrow, ColumnSelector, EvenOddThrow, RowSelector, Wallet, ZeroType
+from Roulette import BetType, ColorThrow, ColumnSelector, EvenOddThrow, RowSelector, ThirdSelector, Wallet, ZeroType
 
 
 def write_throws(f, throws: [int]):
@@ -16,6 +16,7 @@ class BetController:
         self.__color_throw = ColorThrow.ColorThrow()
         self.__rows_selector = RowSelector.RowSelector()
         self.__column_selector = ColumnSelector.ColumnSelector()
+        self.__third_selector = ThirdSelector.ThirdSelector()
         self.__even_odd_throw = EvenOddThrow
         self.__model = model
 
@@ -47,18 +48,18 @@ class BetController:
             self.__next_bets.append(BetType.BetType.FIRST_HALF)
         if self.__is_bet_on_second_half():
             self.__next_bets.append(BetType.BetType.SECOND_HALF)
-        # if self.__is_bet_on_first_third():
-        #     self.__next_bets.append(BetType.BetType.FIRST_THIRD)
-        # if self.__is_bet_on_second_third():
-        #     self.__next_bets.append(BetType.BetType.SECOND_THIRD)
-        # if self.__is_bet_on_third_third():
-        #     self.__next_bets.append(BetType.BetType.THIRD_THIRD)
-        # if self.__is_bet_on_first_column():
-        #     self.__next_bets.append(BetType.BetType.FIRST_COLUMN)
-        # if self.__is_bet_on_second_column():
-        #     self.__next_bets.append(BetType.BetType.SECOND_COLUMN)
-        # if self.__is_bet_on_third_column():
-        #     self.__next_bets.append(BetType.BetType.THIRD_COLUMN)
+        if self.__is_bet_on_first_third():
+            self.__next_bets.append(BetType.BetType.FIRST_THIRD)
+        if self.__is_bet_on_second_third():
+            self.__next_bets.append(BetType.BetType.SECOND_THIRD)
+        if self.__is_bet_on_third_third():
+            self.__next_bets.append(BetType.BetType.THIRD_THIRD)
+        if self.__is_bet_on_first_column():
+            self.__next_bets.append(BetType.BetType.FIRST_COLUMN)
+        if self.__is_bet_on_second_column():
+            self.__next_bets.append(BetType.BetType.SECOND_COLUMN)
+        if self.__is_bet_on_third_column():
+            self.__next_bets.append(BetType.BetType.THIRD_COLUMN)
 
         if len(self.__next_bets) == 0:
             self.__bets.append([BetType.BetType.NO_BET])
@@ -137,16 +138,16 @@ class BetController:
                    for value in self.__last_throws_two_options)
 
     def __is_bet_on_first_third(self) -> bool:
-        return all(self.__rows_selector.is_second_third(value) or ZeroType.ZeroType.is_zero_or_double(value)
-                   or self.__rows_selector.is_third_third(value) for value in self.__last_throws_three_options)
+        return all(self.__third_selector.is_second_third(value) or ZeroType.ZeroType.is_zero_or_double(value)
+                   or self.__third_selector.is_third_third(value) for value in self.__last_throws_three_options)
 
     def __is_bet_on_second_third(self) -> bool:
-        return all(self.__rows_selector.is_first_third(value) or ZeroType.ZeroType.is_zero_or_double(value)
-                   or self.__rows_selector.is_third_third(value) for value in self.__last_throws_three_options)
+        return all(self.__third_selector.is_first_third(value) or ZeroType.ZeroType.is_zero_or_double(value)
+                   or self.__third_selector.is_third_third(value) for value in self.__last_throws_three_options)
 
     def __is_bet_on_third_third(self) -> bool:
-        return all(self.__rows_selector.is_first_third(value) or ZeroType.ZeroType.is_zero_or_double(value) or
-                   self.__rows_selector.is_second_third(value) for value in self.__last_throws_three_options)
+        return all(self.__third_selector.is_first_third(value) or ZeroType.ZeroType.is_zero_or_double(value) or
+                   self.__third_selector.is_second_third(value) for value in self.__last_throws_three_options)
 
     def __is_bet_on_first_column(self) -> bool:
         return all(self.__column_selector.is_second_column(value) or self.__column_selector.is_third_column(value) or
@@ -182,11 +183,11 @@ class BetController:
         elif bet_type == BetType.BetType.SECOND_HALF:
             return self.__rows_selector.is_second_half(value)
         elif bet_type == BetType.BetType.FIRST_THIRD:
-            return self.__rows_selector.is_first_third(value)
+            return self.__third_selector.is_first_third(value)
         elif bet_type == BetType.BetType.SECOND_THIRD:
-            return self.__rows_selector.is_second_third(value)
+            return self.__third_selector.is_second_third(value)
         elif bet_type == BetType.BetType.THIRD_THIRD:
-            return self.__rows_selector.is_third_third(value)
+            return self.__third_selector.is_third_third(value)
         elif bet_type == BetType.BetType.FIRST_COLUMN:
             return self.__column_selector.is_first_column(value)
         elif bet_type == BetType.BetType.SECOND_COLUMN:

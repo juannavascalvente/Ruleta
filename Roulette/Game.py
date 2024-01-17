@@ -122,6 +122,7 @@ class Game:
 
             self.__bet_controller.reset_bet()
             self.__f.write('------------------------------------------------------------------------------------\n')
+            self.__f.flush()
 
         self.__statistics.update(self.__throw_generator.get_throws(), self.__bet_controller.get_bets_history())
         self.__statistics.display(self.__wallet)
