@@ -1,2 +1,4 @@
 .idea/
-Roulette/__pycache__/
+Roulette/*
+log.txt
+*.zip
