@@ -27,8 +27,8 @@ class BetController:
         self.__bets.append([BetType.BetType.NO_BET])
 
     def display_bets(self):
+        print('----------------------------- RECOMMENDED BETS ----------------------------------')
         for bet in self.get_bet():
-            print('----------------------------- RECOMMENDED BETS ----------------------------------')
             bet.display()
             print('---------------------------------------------------------------------------------')
 
@@ -170,6 +170,7 @@ class BetController:
     def is_win(self, bet_type: BetType.BetType, value: int) -> bool:
         if ZeroType.ZeroType.is_zero_or_double(value):
             return False
+
         if bet_type == BetType.BetType.ODDS_BET:
             return self.__even_odd_throw.is_odd(value)
         elif bet_type == BetType.BetType.EVEN_BET:

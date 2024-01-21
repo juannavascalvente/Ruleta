@@ -3,5 +3,6 @@
   "TWO_OPTIONS_LEN": 5,
   "THREE_OPTIONS_LEN": 7,
   "BET_MODEL": 1,
-  "INTERACTIVE": true
+  "INTERACTIVE": true,
+  "LIVE": true
 }

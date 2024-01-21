@@ -23,7 +23,7 @@ class BetType(Enum):
     FIRST_AND_THIRD_COLUMN = 19
 
     def __get_message(self) -> str:
-        return 'Recommended bet is: ' + self.__as_string()
+        return 'Recommended bet: ' + self.__as_string()
 
     def display(self):
         print(self.__get_message())
@@ -54,6 +54,8 @@ class BetType(Enum):
             return 'FIRST THIRD'
         elif self == self.SECOND_THIRD:
             return 'SECOND THIRD'
+        elif self == self.THIRD_THIRD:
+            return 'THIRD THIRD'
         elif self == self.FIRST_AND_SECOND_THIRD:
             return 'FIRST AND SECOND THIRD'
         elif self == self.FIRST_AND_THIRD_THIRD:

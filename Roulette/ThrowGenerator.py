@@ -19,7 +19,8 @@ class ThrowGenerator:
         self.__num_throws = num_throws
 
     def get_num_throws(self) -> int:
-        return len(self.__throws)
+        # return len(self.__throws)
+        return self.__num_throws
 
     def __generate_throw(self):
         random_data = os.urandom(self.RAND_SIZE)
@@ -47,3 +48,6 @@ class ThrowGenerator:
 
     def set_throws(self, throws: [int]):
         self.__throws = throws
+
+    def add_throw(self, throw: int):
+        self.__throws.append(throw)

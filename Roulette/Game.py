@@ -1,3 +1,4 @@
+from awscli.compat import raw_input
 from colorama import Fore
 
 from Roulette.BetController import BetController, write_throws
@@ -7,6 +8,24 @@ from Roulette.Statistics import Statistics
 from Roulette.ThrowGenerator import ThrowGenerator
 from Roulette.Wallet import Wallet
 from Roulette.ZeroType import ZeroType
+
+
+def get_number() -> int:
+    is_correct_number = False
+    number = -1
+    while not is_correct_number:
+        try:
+            input_data = raw_input("Enter result from Roulette!\n")
+            number = int(input_data)
+            if (number >= 0) and (number <= 37):
+                print("You entered %d" % number)
+                is_correct_number = True
+            else:
+                print(f'Wrong number entered {number}, MUST be between 0 and 37 (00)')
+        except ValueError as ve:
+            print(f'Wrong number entered {input_data}, MUST be between 0 and 37 (00)')
+
+    return number
 
 
 class Game:
@@ -21,6 +40,8 @@ class Game:
     __MODEL_2 = 2
     __MODEL_3 = 3
 
+    __MAX_NUM_THROWS = 1000000
+
     # def __init__(self, initial_bet: int = __INITIAL_BET,
     #              num_throws_two_options: int = __TWO_OPTIONS_LEN,
     #              num_throws_three_options: int = __THREE_OPTIONS_LEN,
@@ -34,13 +55,42 @@ class Game:
         self.__f = open("log.txt", "w")
         self.__throw_generator = ThrowGenerator(data['TWO_OPTIONS_LEN'], data['THREE_OPTIONS_LEN'])
         self.__is_interactive = data['INTERACTIVE']
-        self.__num_throws = data['NUM_THROWS']
+        self.__is_live = data['LIVE']
+        if self.__is_live:
+            self.__num_throws = self.__MAX_NUM_THROWS
+        else:
+            self.__num_throws = data['NUM_THROWS']
 
     def play(self):
         self.__bet_controller.reset_all_bet_amount()
         self.__bet_controller.init_balance()
 
         self.__throw_generator.set_num_throws(self.__num_throws)
+        if self.__is_live:
+            self.__play_live()
+        else:
+            self.__play()
+
+        self.__statistics.update(self.__throw_generator.get_throws(), self.__bet_controller.get_bets_history())
+        self.__statistics.display(self.__wallet)
+        self.__statistics.write(self.__f, self.__wallet)
+
+        self.__f.close()
+
+    def display(self):
+        color_throw = ColorThrow()
+        for value in self.__throw_generator.get_throws():
+            if color_throw.is_red(value):
+                print(Fore.RED, value)
+            elif color_throw.is_black(value):
+                print(Fore.BLACK, value)
+            else:
+                if value == ZeroType.DOUBLE_ZERO:
+                    print(Fore.GREEN, "00")
+                else:
+                    print(Fore.GREEN, value)
+
+    def __play(self):
         self.__throw_generator.generate()
         # self.__throw_generator.set_throws([7, 37, 24, 20, 8, 5, 36, 22, 7, 25, 24, 9, 6, 27, 13, 32, 24, 28, 37, 6, 7, 9, 5, 1, 3, 13, 3, 35, 18, 1, 6, 18, 15, 1, 28, 34, 25, 17, 29, 19, 2, 24, 14, 16, 34, 24, 3, 29, 26, 13, 20, 32, 22, 1, 24, 34, 30, 0, 16, 17, 5, 36, 17, 0, 19, 34, 11, 16, 34, 12, 1, 25, 12, 26, 4, 2, 14, 15, 4, 9, 25, 23, 23, 11, 0, 14, 27, 37, 37, 2, 21, 5, 14, 22, 9, 15, 9, 25, 12, 11, 35, 21, 10, 6, 30, 30, 26, 6, 30, 34, 26, 36, 10, 30, 34, 10, 14, 34, 6, 26, 9, 21, 5, 11, 5, 28, 22, 20, 31, 33, 14, 36, 22, 31, 25, 3, 4, 28, 19, 8, 2, 21, 22, 37, 36, 6, 17, 26, 37, 33, 19, 7, 30, 5, 20, 15, 21, 11, 2, 20, 19, 1, 27, 22, 17, 19, 35, 37, 37, 3, 30, 35, 14, 29, 19, 20, 27, 14, 21, 6, 27, 20, 17, 26, 21, 15, 19, 9, 26, 23, 35, 32, 33, 1, 20, 31, 18, 16, 25, 6, 34, 8, 23, 16, 37, 18, 24, 25, 15, 4, 19, 11, 4, 37, 5, 34, 14, 31, 37, 36, 12, 33, 24, 15, 36, 21, 30, 6, 17, 12, 12, 29, 15, 34, 17, 1, 3, 28, 17, 24])
         # self.__throw_generator.set_throws([14, 15, 13, 35, 22, 25, 7, 21, 6, 16, 0, 36, 8, 6, 12, 2, 15, 23, 13, 33, 26, 30, 34, 4, 6, 11, 7, 6, 25, 33, 28, 20, 8, 34, 2, 34, 0, 22, 6, 14, 29, 25, 18, 19, 3, 24, 13, 10, 5, 21, 21, 18, 4, 7, 17, 36, 37, 21, 27, 22, 29, 24, 15, 36, 29, 37, 10, 37, 6, 21, 24, 20, 33, 17, 22, 6, 13, 20, 8, 33, 11, 37, 20, 13, 37, 0, 11, 29, 10, 24, 11, 1, 8, 18, 23, 37, 0, 8, 16, 36, 6, 21, 33, 26, 13, 25, 10, 35, 10, 13, 20, 5, 6, 25, 36, 30, 26, 2, 33, 22, 27, 7, 36, 12, 31, 35, 36, 23, 1, 22, 4, 3, 28, 0, 6, 16, 35, 7, 37, 25, 6, 32, 0, 15, 7, 16, 14, 28, 11, 12, 5, 10, 6, 5, 22, 31, 13, 20, 27, 29, 20, 22, 5, 9, 28, 16, 30, 33, 11, 18, 6, 9, 19, 21, 19, 33, 33, 7, 6, 28, 11, 9, 21, 3, 3, 36, 4, 33, 24, 20, 9, 9, 8, 19, 30, 31, 6, 2, 30, 32, 23, 32, 12, 21, 6, 13, 9, 10, 20, 30, 11, 3, 25, 29, 14, 1, 35, 10, 8, 18, 13, 14, 10, 36, 18, 31, 23, 21, 8, 12, 23, 13, 0, 16, 6, 10, 17, 8, 28, 1])
@@ -124,21 +174,62 @@ class Game:
             self.__f.write('------------------------------------------------------------------------------------\n')
             self.__f.flush()
 
-        self.__statistics.update(self.__throw_generator.get_throws(), self.__bet_controller.get_bets_history())
-        self.__statistics.display(self.__wallet)
-        self.__statistics.write(self.__f, self.__wallet)
+    def __play_live(self):
+        for i in range(1, self.__throw_generator.get_num_throws() + 1):
 
-        self.__f.close()
+            if i <= self.__MIN_DATA_LENGTH:
+                self.__f.write('Not enough data in iteration ' + str(i) + '\n')
+                number = get_number()
+                self.__throw_generator.add_throw(number)
+                self.__bet_controller.add_history_not_bet()
+                continue
 
-    def display(self):
-        color_throw = ColorThrow()
-        for value in self.__throw_generator.get_throws():
-            if color_throw.is_red(value):
-                print(Fore.RED, value)
-            elif color_throw.is_black(value):
-                print(Fore.BLACK, value)
+            last_throws_for_two_options = self.__throw_generator.get_last_throws_for_two_options(i)
+            last_throws_for_three_options = self.__throw_generator.get_last_throws_for_three_options(i)
+            if self.__bet_controller.compute_bet(last_throws_for_two_options, last_throws_for_three_options):
+                write_throws(self.__f, last_throws_for_two_options)
+
+                last_10_throws = self.__throw_generator.get_throws_range(i - 11, i - 1)
+                print('Last 10 throws are: ' + str(last_10_throws))
+                self.__bet_controller.display_bets()
+
+                number = get_number()
+                self.__throw_generator.add_throw(number)
+                current_throw = self.__throw_generator.get_throw(i - 1)
+                ResultDisplay.write(self.__f, current_throw)
+                ResultDisplay.display(current_throw)
+
+                for bet_type in self.__bet_controller.get_bet():
+                    self.__f.write('Bet amount\t->\t' + str(self.__bet_controller.get_bet_amount(bet_type)) + '\n')
+                    self.__bet_controller.update_accumulated_bet(bet_type)
+                    self.__f.write(
+                        'Bet accumulated\t->\t' + str(self.__bet_controller.get_bet_accumulated(bet_type)) + '\n')
+                    self.__f.write(
+                        'Max bet accumulated\t->\t' + str(self.__bet_controller.get_max_bet_accumulated()) + '\n')
+                    self.__f.write('Balance\t\t->\t' + str(self.__bet_controller.get_bet_balance()) + '\n')
+                    bet_type.write(self.__f)
+                    bet_type.display()
+                    if self.__bet_controller.is_win(bet_type, current_throw):
+                        if self.__is_interactive:
+                            print('**********\nBet WON\n**********')
+                        self.__f.write('Bet WON\n')
+                        self.__bet_controller.update_balance_win(bet_type)
+                        self.__bet_controller.reset_bet_amount(bet_type)
+                    else:
+                        if self.__is_interactive:
+                            print('**********\nBet LOST\n**********')
+                        self.__f.write('Bet LOST\n')
+                        self.__bet_controller.update_balance_lost(bet_type)
+                        if self.__bet_controller.is_max_amount_lost(bet_type):
+                            self.__f.write('TOO MANY Bets LOST\n')
+                            self.__bet_controller.reset_bet_amount(bet_type)
+                        else:
+                            self.__bet_controller.update_bet_amount(bet_type)
+                    self.__f.write('New balance\t\t->\t' + str(self.__bet_controller.get_bet_balance()) + '\n')
             else:
-                if value == ZeroType.DOUBLE_ZERO:
-                    print(Fore.GREEN, "00")
-                else:
-                    print(Fore.GREEN, value)
+                self.__f.write('No bet recommendation in iteration ' + str(i) + '\n')
+
+            self.__bet_controller.reset_bet()
+            self.__f.write('------------------------------------------------------------------------------------\n')
+            self.__f.flush()
+            raw_input("Press enter for next throw!\n")
