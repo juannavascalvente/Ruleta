@@ -5,11 +5,11 @@ from Roulette.ZeroType import ZeroType
 
 
 def is_even(value: int) -> bool:
-    return value % 2 == 1
+    return value % 2 == 0
 
 
 def is_odd(value: int) -> bool:
-    return value % 2 == 0
+    return value % 2 == 1
 
 
 class EvenOddThrow(ThrowCheckerHalf, ABC):

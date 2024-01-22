@@ -114,11 +114,11 @@ class BetController:
         return any((value == 0 or value == 37) for value in self.__last_throws_two_options)
 
     def __is_bet_on_even(self) -> bool:
-        return all(value % 2 == 0 or ZeroType.ZeroType.is_zero_or_double(value)
+        return all(value % 2 != 0 or ZeroType.ZeroType.is_zero_or_double(value)
                    for value in self.__last_throws_two_options)
 
     def __is_bet_on_odds(self) -> bool:
-        return all(value % 2 != 0 or ZeroType.ZeroType.is_zero_or_double(value)
+        return all(value % 2 == 0 or ZeroType.ZeroType.is_zero_or_double(value)
                    for value in self.__last_throws_two_options)
 
     def __is_bet_on_red(self) -> bool:
