@@ -180,7 +180,7 @@ class Game:
                 write_throws(self.__f, last_throws_for_two_options)
 
                 last_throws = self.__throw_generator.get_throws_range(i - self.__min_num_throws - 1, i - 1)
-                print('Last 10 throws are: ' + str(last_throws))
+                print('Last throws are: ' + str(last_throws))
                 self.__bet_controller.display_bets()
 
                 number = get_number()
@@ -198,16 +198,15 @@ class Game:
                         'Max bet accumulated\t->\t' + str(self.__bet_controller.get_max_bet_accumulated()) + '\n')
                     self.__f.write('Balance\t\t->\t' + str(self.__bet_controller.get_bet_balance()) + '\n')
                     bet_type.write(self.__f)
-                    bet_type.display()
                     if self.__bet_controller.is_win(bet_type, current_throw):
                         if self.__is_interactive:
-                            print('**********\nBet WON\n**********')
+                            bet_type.display('\tBet WON\n**********')
                         self.__f.write('Bet WON\n')
                         self.__bet_controller.update_balance_win(bet_type)
                         self.__bet_controller.reset_bet_amount(bet_type)
                     else:
                         if self.__is_interactive:
-                            print('**********\nBet LOST\n**********')
+                            bet_type.display('\tBet LOST\n**********')
                         self.__f.write('Bet LOST\n')
                         self.__bet_controller.update_balance_lost(bet_type)
                         if self.__bet_controller.is_max_amount_lost(bet_type):

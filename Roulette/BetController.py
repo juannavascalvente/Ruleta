@@ -29,7 +29,7 @@ class BetController:
     def display_bets(self):
         print('----------------------------- RECOMMENDED BETS ----------------------------------')
         for bet in self.get_bet():
-            bet.display()
+            bet.display(str(self.__wallet.get_bet_amount(bet)))
             print('---------------------------------------------------------------------------------')
 
     def compute_bet(self, throws_two_options: [int], throws_three_options: [int]) -> bool:

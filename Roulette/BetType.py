@@ -23,10 +23,13 @@ class BetType(Enum):
     FIRST_AND_THIRD_COLUMN = 19
 
     def __get_message(self) -> str:
-        return 'Recommended bet: ' + self.__as_string()
+        return 'Bet: ' + self.__as_string()
 
-    def display(self):
-        print(self.__get_message())
+    def display(self, amount: str = None):
+        if amount is None:
+            print(self.__get_message())
+        else:
+            print(self.__get_message() + ' -> ' + amount + ' €')
 
     def write(self, f):
         f.write(self.__get_message() + '\n')
