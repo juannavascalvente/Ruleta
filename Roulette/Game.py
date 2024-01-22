@@ -17,14 +17,21 @@ def get_number() -> int:
         input_data = ""
         try:
             input_data = raw_input("Enter result from Roulette!\n")
-            number = int(input_data)
-            if (number >= 0) and (number <= 37):
-                print("You entered %d" % number)
-                is_correct_number = True
+            if len(input_data) > 2:
+                print(f'Wrong number entered \'{number}\', MUST be 00 or between 0 and 36')
             else:
-                print(f'Wrong number entered {number}, MUST be between 0 and 37 (00)')
+                if input_data == "00":
+                    number = 37
+                    print("You entered 00")
+                else:
+                    number = int(input_data)
+                    print("You entered %d" % number)
+                if (number >= 0) and (number <= 37):
+                    is_correct_number = True
+                else:
+                    print(f'Wrong number entered \'{number}\', MUST be 00 or between 0 and 36')
         except ValueError:
-            print(f'Wrong number entered {input_data}, MUST be between 0 and 37 (00)')
+            print(f'Wrong number entered \'{input_data}\', MUST be 00 or between 0 and 36')
 
     return number
 
