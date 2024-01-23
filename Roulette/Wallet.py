@@ -27,6 +27,12 @@ class Wallet:
             BetType.FIRST_COLUMN: initial_bet,
             BetType.SECOND_COLUMN: initial_bet,
             BetType.THIRD_COLUMN: initial_bet,
+            BetType.FIRST_AND_SECOND_THIRD: initial_bet,
+            BetType.SECOND_AND_THIRD_THIRD: initial_bet,
+            BetType.FIRST_AND_THIRD_THIRD: initial_bet,
+            BetType.FIRST_AND_SECOND_COLUMN: initial_bet,
+            BetType.SECOND_AND_THIRD_COLUMN: initial_bet,
+            BetType.FIRST_AND_THIRD_COLUMN: initial_bet,
         }
         self.__balance = 0
         self.__bet_factor_growth = bet_factor_growth
@@ -44,6 +50,12 @@ class Wallet:
             BetType.FIRST_COLUMN: 0.0,
             BetType.SECOND_COLUMN: 0.0,
             BetType.THIRD_COLUMN: 0.0,
+            BetType.FIRST_AND_SECOND_THIRD: 0.0,
+            BetType.SECOND_AND_THIRD_THIRD: 0.0,
+            BetType.FIRST_AND_THIRD_THIRD: 0.0,
+            BetType.FIRST_AND_SECOND_COLUMN: 0.0,
+            BetType.SECOND_AND_THIRD_COLUMN: 0.0,
+            BetType.FIRST_AND_THIRD_COLUMN: 0.0,
         }
         self.__num_bet_lost = {
             BetType.RED_BET: 0,
@@ -58,6 +70,12 @@ class Wallet:
             BetType.FIRST_COLUMN: 0,
             BetType.SECOND_COLUMN: 0,
             BetType.THIRD_COLUMN: 0,
+            BetType.FIRST_AND_SECOND_THIRD: 0,
+            BetType.SECOND_AND_THIRD_THIRD: 0,
+            BetType.FIRST_AND_THIRD_THIRD: 0,
+            BetType.FIRST_AND_SECOND_COLUMN: 0,
+            BetType.SECOND_AND_THIRD_COLUMN: 0,
+            BetType.FIRST_AND_THIRD_COLUMN: 0,
         }
         self.__max_accumulated_bet = 0
         self.__max_balance = self.__balance
@@ -142,6 +160,12 @@ class Wallet:
             BetType.FIRST_COLUMN: self.__initial_bet,
             BetType.SECOND_COLUMN: self.__initial_bet,
             BetType.THIRD_COLUMN: self.__initial_bet,
+            BetType.FIRST_AND_SECOND_THIRD: self.__initial_bet,
+            BetType.SECOND_AND_THIRD_THIRD: self.__initial_bet,
+            BetType.FIRST_AND_THIRD_THIRD: self.__initial_bet,
+            BetType.FIRST_AND_SECOND_COLUMN: self.__initial_bet,
+            BetType.SECOND_AND_THIRD_COLUMN: self.__initial_bet,
+            BetType.FIRST_AND_THIRD_COLUMN: self.__initial_bet
         }
         self.__accumulated_bet = {
             BetType.RED_BET: 0.0,
@@ -156,6 +180,12 @@ class Wallet:
             BetType.FIRST_COLUMN: 0.0,
             BetType.SECOND_COLUMN: 0.0,
             BetType.THIRD_COLUMN: 0.0,
+            BetType.FIRST_AND_SECOND_THIRD: 0.0,
+            BetType.SECOND_AND_THIRD_THIRD: 0.0,
+            BetType.FIRST_AND_THIRD_THIRD: 0.0,
+            BetType.FIRST_AND_SECOND_COLUMN: 0.0,
+            BetType.SECOND_AND_THIRD_COLUMN: 0.0,
+            BetType.FIRST_AND_THIRD_COLUMN: 0.0
         }
 
     def reset_bet_amount(self, bet_type: BetType):

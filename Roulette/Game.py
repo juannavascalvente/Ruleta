@@ -217,6 +217,8 @@ class Game:
                     self.__f.write('New balance\t\t->\t' + str(self.__bet_controller.get_bet_balance()) + '\n')
             else:
                 self.__f.write('No bet recommendation in iteration ' + str(i) + '\n')
+                number = get_number()
+                self.__throw_generator.add_throw(number)
 
             self.__bet_controller.reset_bet()
             self.__f.write('------------------------------------------------------------------------------------\n')

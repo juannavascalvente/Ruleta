@@ -17,6 +17,15 @@ class ColumnSelector(ThrowCheckerThird, ABC):
     def is_third_column(self, value: int) -> bool:
         return value in self.THIRD_COLUMN
 
+    def is_first_or_second_column(self, value: int) -> bool:
+        return value in self.FIRST_COLUMN or value in self.SECOND_COLUMN
+
+    def is_second_or_third_column(self, value: int) -> bool:
+        return value in self.SECOND_COLUMN or value in self.THIRD_COLUMN
+
+    def is_first_or_third_column(self, value: int) -> bool:
+        return value in self.FIRST_COLUMN or value in self.THIRD_COLUMN
+
     def is_a(self, value: int) -> bool:
         return self.is_first_column(value)
 

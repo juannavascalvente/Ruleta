@@ -60,6 +60,18 @@ class BetController:
             self.__next_bets.append(BetType.BetType.SECOND_COLUMN)
         if self.__is_bet_on_third_column():
             self.__next_bets.append(BetType.BetType.THIRD_COLUMN)
+        if self.__is_bet_on_first_and_second_column():
+            self.__next_bets.append(BetType.BetType.FIRST_AND_SECOND_COLUMN)
+        if self.__is_bet_on_second_and_third_column():
+            self.__next_bets.append(BetType.BetType.SECOND_AND_THIRD_COLUMN)
+        if self.__is_bet_on_first_and_third_column():
+            self.__next_bets.append(BetType.BetType.FIRST_AND_THIRD_COLUMN)
+        if self.__is_bet_on_first_and_second_third():
+            self.__next_bets.append(BetType.BetType.FIRST_AND_SECOND_THIRD)
+        if self.__is_bet_on_second_and_third_third():
+            self.__next_bets.append(BetType.BetType.SECOND_AND_THIRD_THIRD)
+        if self.__is_bet_on_first_and_third_third():
+            self.__next_bets.append(BetType.BetType.FIRST_AND_THIRD_THIRD)
 
         if len(self.__next_bets) == 0:
             self.__bets.append([BetType.BetType.NO_BET])
@@ -161,6 +173,30 @@ class BetController:
         return all(self.__column_selector.is_first_column(value) or self.__column_selector.is_second_column(value) or
                    ZeroType.ZeroType.is_zero_or_double(value) for value in self.__last_throws_three_options)
 
+    def __is_bet_on_first_and_second_column(self) -> bool:
+        return all(self.__column_selector.is_third_column(value) or ZeroType.ZeroType.is_zero_or_double(value)
+                   for value in self.__last_throws_three_options)
+
+    def __is_bet_on_second_and_third_column(self) -> bool:
+        return all(self.__column_selector.is_first_column(value) or ZeroType.ZeroType.is_zero_or_double(value)
+                   for value in self.__last_throws_three_options)
+
+    def __is_bet_on_first_and_third_column(self) -> bool:
+        return all(self.__column_selector.is_second_column(value) or ZeroType.ZeroType.is_zero_or_double(value)
+                   for value in self.__last_throws_three_options)
+
+    def __is_bet_on_first_and_second_third(self) -> bool:
+        return all(self.__third_selector.is_third_third(value) or ZeroType.ZeroType.is_zero_or_double(value)
+                   for value in self.__last_throws_three_options)
+
+    def __is_bet_on_second_and_third_third(self) -> bool:
+        return all(self.__third_selector.is_first_third(value) or ZeroType.ZeroType.is_zero_or_double(value)
+                   for value in self.__last_throws_three_options)
+
+    def __is_bet_on_first_and_third_third(self) -> bool:
+        return all(self.__third_selector.is_second_third(value) or ZeroType.ZeroType.is_zero_or_double(value)
+                   for value in self.__last_throws_three_options)
+
     def display(self):
         print(self.__wallet)
 
@@ -189,9 +225,21 @@ class BetController:
             return self.__third_selector.is_second_third(value)
         elif bet_type == BetType.BetType.THIRD_THIRD:
             return self.__third_selector.is_third_third(value)
+        elif bet_type == BetType.BetType.FIRST_AND_SECOND_THIRD:
+            return self.__third_selector.is_first_or_second_third(value)
+        elif bet_type == BetType.BetType.SECOND_AND_THIRD_THIRD:
+            return self.__third_selector.is_second_or_third_third(value)
+        elif bet_type == BetType.BetType.FIRST_AND_THIRD_THIRD:
+            return self.__third_selector.is_first_or_third_third(value)
         elif bet_type == BetType.BetType.FIRST_COLUMN:
             return self.__column_selector.is_first_column(value)
         elif bet_type == BetType.BetType.SECOND_COLUMN:
             return self.__column_selector.is_second_column(value)
         elif bet_type == BetType.BetType.THIRD_COLUMN:
             return self.__column_selector.is_third_column(value)
+        elif bet_type == BetType.BetType.FIRST_AND_SECOND_COLUMN:
+            return self.__column_selector.is_first_or_second_column(value)
+        elif bet_type == BetType.BetType.SECOND_AND_THIRD_COLUMN:
+            return self.__column_selector.is_second_or_third_column(value)
+        elif bet_type == BetType.BetType.FIRST_AND_THIRD_COLUMN:
+            return self.__column_selector.is_first_or_third_column(value)
