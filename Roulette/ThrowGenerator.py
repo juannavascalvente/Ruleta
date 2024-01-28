@@ -7,13 +7,12 @@ class ThrowGenerator:
     MAX_NUMBERS = 38
     DEFAULT_NUM_THROWS_THRESHOLD = 50
 
-    def __init__(self, num_throws_two_options: int, num_throws_three_options):
+    def __init__(self, num_throws_two_options: int, num_throws_three_options: int, num_throws_combined_options: int):
         self.__throws = []
-        self.__two_options_default_num_throws_threshold = num_throws_two_options
-        self.__three_options_default_num_throws_threshold = num_throws_three_options
         self.__num_throws = self.DEFAULT_NUM_THROWS_THRESHOLD
         self.__num_last_two_options_throws = num_throws_two_options
         self.__num_last_three_options_throws = num_throws_three_options
+        self.__num_last_combined_options_throws = num_throws_combined_options
 
     def set_num_throws(self, num_throws: int):
         self.__num_throws = num_throws
@@ -32,6 +31,9 @@ class ThrowGenerator:
 
     def get_last_throws_for_three_options(self, index: int) -> [int]:
         return self.__throws[index - self.__num_last_three_options_throws - 1:index - 1]
+
+    def get_last_throws_for_combined_options(self, index: int) -> [int]:
+        return self.__throws[index - self.__num_last_combined_options_throws - 1:index - 1]
 
     def get_throws_range(self, start: int, end: int) -> [int]:
         return self.__throws[start:end]

@@ -49,21 +49,16 @@ class Game:
 
     __MAX_NUM_THROWS = 1000000
 
-    # def __init__(self, initial_bet: int = __INITIAL_BET,
-    #              num_throws_two_options: int = __TWO_OPTIONS_LEN,
-    #              num_throws_three_options: int = __THREE_OPTIONS_LEN,
-    #              num_throws_to_stop_two_options: int = __TWO_OPTIONS_STOP_LEN,
-    #              num_throws_to_stop_three_options: int = __THREE_OPTIONS_STOP_LEN,
-    #              model: int = __MODEL_3):
     def __init__(self, data):
         self.__wallet = Wallet(self.__INITIAL_BET)
         self.__bet_controller = BetController(self.__wallet, data['BET_MODEL'])
         self.__statistics = Statistics()
         self.__f = open("log.txt", "w")
-        self.__throw_generator = ThrowGenerator(data['TWO_OPTIONS_LEN'], data['THREE_OPTIONS_LEN'])
+        self.__throw_generator = ThrowGenerator(data['TWO_OPTIONS_LEN'], data['THREE_OPTIONS_LEN'],
+                                                data['COMBINED_OPTIONS_LEN'])
         self.__is_interactive = data['INTERACTIVE']
         self.__is_live = data['LIVE']
-        self.__min_num_throws = max(data['TWO_OPTIONS_LEN'], data['THREE_OPTIONS_LEN'])
+        self.__min_num_throws = max(data['TWO_OPTIONS_LEN'], data['THREE_OPTIONS_LEN'], data['COMBINED_OPTIONS_LEN'])
         if self.__is_live:
             self.__num_throws = self.__MAX_NUM_THROWS
         else:
@@ -109,10 +104,11 @@ class Game:
                 self.__bet_controller.add_history_not_bet()
                 continue
 
-            last_throws_for_two_options = self.__throw_generator.get_last_throws_for_two_options(i)
-            last_throws_for_three_options = self.__throw_generator.get_last_throws_for_three_options(i)
-            if self.__bet_controller.compute_bet(last_throws_for_two_options, last_throws_for_three_options):
-                write_throws(self.__f, last_throws_for_two_options)
+            two_options_throws = self.__throw_generator.get_last_throws_for_two_options(i)
+            three_options_throws = self.__throw_generator.get_last_throws_for_three_options(i)
+            combined_throws = self.__throw_generator.get_last_throws_for_combined_options(i)
+            if self.__bet_controller.compute_bet(two_options_throws, three_options_throws, combined_throws):
+                write_throws(self.__f, two_options_throws)
                 current_throw = self.__throw_generator.get_throw(i - 1)
 
                 if self.__is_interactive:
@@ -125,31 +121,7 @@ class Game:
                 ResultDisplay.write(self.__f, current_throw)
 
                 for bet_type in self.__bet_controller.get_bet():
-                    self.__f.write('Bet amount\t->\t' + str(self.__bet_controller.get_bet_amount(bet_type)) + '\n')
-                    self.__bet_controller.update_accumulated_bet(bet_type)
-                    self.__f.write(
-                        'Bet accumulated\t->\t' + str(self.__bet_controller.get_bet_accumulated(bet_type)) + '\n')
-                    self.__f.write(
-                        'Max bet accumulated\t->\t' + str(self.__bet_controller.get_max_bet_accumulated()) + '\n')
-                    self.__f.write('Balance\t\t->\t' + str(self.__bet_controller.get_bet_balance()) + '\n')
-                    bet_type.write(self.__f)
-                    if self.__bet_controller.is_win(bet_type, current_throw):
-                        if self.__is_interactive:
-                            print('**********\nBet WON\n**********\n')
-                        self.__f.write('Bet WON\n')
-                        self.__bet_controller.update_balance_win(bet_type)
-                        self.__bet_controller.reset_bet_amount(bet_type)
-                    else:
-                        if self.__is_interactive:
-                            print('**********\nBet LOST\n**********\n')
-                        self.__f.write('Bet LOST\n')
-                        self.__bet_controller.update_balance_lost(bet_type)
-                        if self.__bet_controller.is_max_amount_lost(bet_type):
-                            self.__f.write('TOO MANY Bets LOST\n')
-                            self.__bet_controller.reset_bet_amount(bet_type)
-                        else:
-                            self.__bet_controller.update_bet_amount(bet_type)
-                    self.__f.write('New balance\t\t->\t' + str(self.__bet_controller.get_bet_balance()) + '\n')
+                    self.__bet_controller.process(bet_type, current_throw, self.__f)
             else:
                 if self.__is_interactive:
                     last_throws = self.__throw_generator.get_throws_range(i - self.__min_num_throws - 1, i - 1)
@@ -174,10 +146,11 @@ class Game:
                 self.__bet_controller.add_history_not_bet()
                 continue
 
-            last_throws_for_two_options = self.__throw_generator.get_last_throws_for_two_options(i)
-            last_throws_for_three_options = self.__throw_generator.get_last_throws_for_three_options(i)
-            if self.__bet_controller.compute_bet(last_throws_for_two_options, last_throws_for_three_options):
-                write_throws(self.__f, last_throws_for_two_options)
+            two_options_throws = self.__throw_generator.get_last_throws_for_two_options(i)
+            three_options_throws = self.__throw_generator.get_last_throws_for_three_options(i)
+            combined_throws = self.__throw_generator.get_last_throws_for_combined_options(i)
+            if self.__bet_controller.compute_bet(two_options_throws, three_options_throws, combined_throws):
+                write_throws(self.__f, three_options_throws)
 
                 last_throws = self.__throw_generator.get_throws_range(i - self.__min_num_throws - 1, i - 1)
                 print('Last throws are: ' + str(last_throws))
@@ -190,36 +163,14 @@ class Game:
                 ResultDisplay.display(current_throw)
 
                 for bet_type in self.__bet_controller.get_bet():
-                    self.__f.write('Bet amount\t->\t' + str(self.__bet_controller.get_bet_amount(bet_type)) + '\n')
-                    self.__bet_controller.update_accumulated_bet(bet_type)
-                    self.__f.write(
-                        'Bet accumulated\t->\t' + str(self.__bet_controller.get_bet_accumulated(bet_type)) + '\n')
-                    self.__f.write(
-                        'Max bet accumulated\t->\t' + str(self.__bet_controller.get_max_bet_accumulated()) + '\n')
-                    self.__f.write('Balance\t\t->\t' + str(self.__bet_controller.get_bet_balance()) + '\n')
-                    bet_type.write(self.__f)
-                    if self.__bet_controller.is_win(bet_type, current_throw):
-                        if self.__is_interactive:
-                            bet_type.display('\tBet WON\n**********')
-                        self.__f.write('Bet WON\n')
-                        self.__bet_controller.update_balance_win(bet_type)
-                        self.__bet_controller.reset_bet_amount(bet_type)
-                    else:
-                        if self.__is_interactive:
-                            bet_type.display('\tBet LOST\n**********')
-                        self.__f.write('Bet LOST\n')
-                        self.__bet_controller.update_balance_lost(bet_type)
-                        if self.__bet_controller.is_max_amount_lost(bet_type):
-                            self.__f.write('TOO MANY Bets LOST\n')
-                            self.__bet_controller.reset_bet_amount(bet_type)
-                        else:
-                            self.__bet_controller.update_bet_amount(bet_type)
-                    self.__f.write('New balance\t\t->\t' + str(self.__bet_controller.get_bet_balance()) + '\n')
+                    self.__bet_controller.process(bet_type, current_throw, self.__f)
             else:
+                print('No bet recommendation in iteration ' + str(i) + '\n')
                 self.__f.write('No bet recommendation in iteration ' + str(i) + '\n')
                 number = get_number()
                 self.__throw_generator.add_throw(number)
 
             self.__bet_controller.reset_bet()
+            self.__bet_controller.display()
             self.__f.write('------------------------------------------------------------------------------------\n')
             self.__f.flush()

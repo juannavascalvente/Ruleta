@@ -221,7 +221,7 @@ class Wallet:
         self.__min_balance = 0.0
 
     def display(self):
-        locale.setlocale(locale.LC_ALL, 'en_EU')
+        # locale.setlocale(locale.LC_ALL, 'en_EU')
         print('\n\n----------------------------- WALLET STATISTICS --------------------------')
         print('Max bet amount required:\t\t%s %s' % (f"{self.__max_bet:,.1f}", u"\N{euro sign}"))
         print('Max accumulated bet required:\t%s %s' % (f"{self.__max_accumulated_bet:,.1f}", u"\N{euro sign}"))

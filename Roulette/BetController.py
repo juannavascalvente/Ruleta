@@ -10,6 +10,7 @@ class BetController:
     def __init__(self, wallet: Wallet.Wallet, model: int):
         self.__last_throws_two_options = []
         self.__last_throws_three_options = []
+        self.__last_throws_combined_options = []
         self.__next_bets = []
         self.__bets = []
         self.__wallet = wallet
@@ -32,9 +33,10 @@ class BetController:
             bet.display(str(self.__wallet.get_bet_amount(bet)))
             print('---------------------------------------------------------------------------------')
 
-    def compute_bet(self, throws_two_options: [int], throws_three_options: [int]) -> bool:
+    def compute_bet(self, throws_two_options: [int], throws_three_options: [int], throws_combined: [int]) -> bool:
         self.__last_throws_two_options = throws_two_options
         self.__last_throws_three_options = throws_three_options
+        self.__last_throws_combined_options = throws_combined
 
         if self.__is_bet_on_even():
             self.__next_bets.append(BetType.BetType.EVEN_BET)
@@ -175,30 +177,30 @@ class BetController:
 
     def __is_bet_on_first_and_second_column(self) -> bool:
         return all(self.__column_selector.is_third_column(value) or ZeroType.ZeroType.is_zero_or_double(value)
-                   for value in self.__last_throws_three_options)
+                   for value in self.__last_throws_combined_options)
 
     def __is_bet_on_second_and_third_column(self) -> bool:
         return all(self.__column_selector.is_first_column(value) or ZeroType.ZeroType.is_zero_or_double(value)
-                   for value in self.__last_throws_three_options)
+                   for value in self.__last_throws_combined_options)
 
     def __is_bet_on_first_and_third_column(self) -> bool:
         return all(self.__column_selector.is_second_column(value) or ZeroType.ZeroType.is_zero_or_double(value)
-                   for value in self.__last_throws_three_options)
+                   for value in self.__last_throws_combined_options)
 
     def __is_bet_on_first_and_second_third(self) -> bool:
         return all(self.__third_selector.is_third_third(value) or ZeroType.ZeroType.is_zero_or_double(value)
-                   for value in self.__last_throws_three_options)
+                   for value in self.__last_throws_combined_options)
 
     def __is_bet_on_second_and_third_third(self) -> bool:
         return all(self.__third_selector.is_first_third(value) or ZeroType.ZeroType.is_zero_or_double(value)
-                   for value in self.__last_throws_three_options)
+                   for value in self.__last_throws_combined_options)
 
     def __is_bet_on_first_and_third_third(self) -> bool:
         return all(self.__third_selector.is_second_third(value) or ZeroType.ZeroType.is_zero_or_double(value)
-                   for value in self.__last_throws_three_options)
+                   for value in self.__last_throws_combined_options)
 
     def display(self):
-        print(self.__wallet)
+        self.__wallet.display()
 
     def update_accumulated_bet(self, bet_type: BetType.BetType):
         self.__wallet.update_accumulated_bet(bet_type)
@@ -243,3 +245,26 @@ class BetController:
             return self.__column_selector.is_second_or_third_column(value)
         elif bet_type == BetType.BetType.FIRST_AND_THIRD_COLUMN:
             return self.__column_selector.is_first_or_third_column(value)
+
+    def process(self, bet_type: BetType, current_throw: int, file):
+        file.write('Bet amount\t->\t' + str(self.get_bet_amount(bet_type)) + '\n')
+        self.update_accumulated_bet(bet_type)
+        file.write('Bet accumulated\t->\t' + str(self.get_bet_accumulated(bet_type)) + '\n')
+        file.write('Max bet accumulated\t->\t' + str(self.get_max_bet_accumulated()) + '\n')
+        file.write('Balance\t\t->\t' + str(self.get_bet_balance()) + '\n')
+        bet_type.write(file)
+        if self.is_win(bet_type, current_throw):
+            file.write('Bet WON\n')
+            bet_type.display('\tBet WON\n**********')
+            self.update_balance_win(bet_type)
+            self.reset_bet_amount(bet_type)
+        else:
+            file.write('Bet LOST\n')
+            bet_type.display('\tBet LOST\n**********')
+            self.update_balance_lost(bet_type)
+            if self.is_max_amount_lost(bet_type):
+                file.write('TOO MANY Bets LOST\n')
+                self.reset_bet_amount(bet_type)
+            else:
+                self.update_bet_amount(bet_type)
+        file.write('New balance\t\t->\t' + str(self.get_bet_balance()) + '\n')
