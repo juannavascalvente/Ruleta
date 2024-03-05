@@ -63,17 +63,23 @@ class BetController:
         if self.__is_bet_on_third_column():
             self.__next_bets.append(BetType.BetType.THIRD_COLUMN)
         if self.__is_bet_on_first_and_second_column():
-            self.__next_bets.append(BetType.BetType.FIRST_AND_SECOND_COLUMN)
+            self._add_if_not_already(BetType.BetType.FIRST_COLUMN)
+            self._add_if_not_already(BetType.BetType.SECOND_COLUMN)
         if self.__is_bet_on_second_and_third_column():
-            self.__next_bets.append(BetType.BetType.SECOND_AND_THIRD_COLUMN)
+            self._add_if_not_already(BetType.BetType.SECOND_COLUMN)
+            self._add_if_not_already(BetType.BetType.THIRD_COLUMN)
         if self.__is_bet_on_first_and_third_column():
-            self.__next_bets.append(BetType.BetType.FIRST_AND_THIRD_COLUMN)
+            self._add_if_not_already(BetType.BetType.FIRST_COLUMN)
+            self._add_if_not_already(BetType.BetType.THIRD_COLUMN)
         if self.__is_bet_on_first_and_second_third():
-            self.__next_bets.append(BetType.BetType.FIRST_AND_SECOND_THIRD)
+            self._add_if_not_already(BetType.BetType.FIRST_THIRD)
+            self._add_if_not_already(BetType.BetType.SECOND_THIRD)
         if self.__is_bet_on_second_and_third_third():
-            self.__next_bets.append(BetType.BetType.SECOND_AND_THIRD_THIRD)
+            self._add_if_not_already(BetType.BetType.SECOND_THIRD)
+            self._add_if_not_already(BetType.BetType.THIRD_THIRD)
         if self.__is_bet_on_first_and_third_third():
-            self.__next_bets.append(BetType.BetType.FIRST_AND_THIRD_THIRD)
+            self._add_if_not_already(BetType.BetType.FIRST_THIRD)
+            self._add_if_not_already(BetType.BetType.THIRD_THIRD)
 
         if len(self.__next_bets) == 0:
             self.__bets.append([BetType.BetType.NO_BET])
@@ -227,24 +233,12 @@ class BetController:
             return self.__third_selector.is_second_third(value)
         elif bet_type == BetType.BetType.THIRD_THIRD:
             return self.__third_selector.is_third_third(value)
-        elif bet_type == BetType.BetType.FIRST_AND_SECOND_THIRD:
-            return self.__third_selector.is_first_or_second_third(value)
-        elif bet_type == BetType.BetType.SECOND_AND_THIRD_THIRD:
-            return self.__third_selector.is_second_or_third_third(value)
-        elif bet_type == BetType.BetType.FIRST_AND_THIRD_THIRD:
-            return self.__third_selector.is_first_or_third_third(value)
         elif bet_type == BetType.BetType.FIRST_COLUMN:
             return self.__column_selector.is_first_column(value)
         elif bet_type == BetType.BetType.SECOND_COLUMN:
             return self.__column_selector.is_second_column(value)
         elif bet_type == BetType.BetType.THIRD_COLUMN:
             return self.__column_selector.is_third_column(value)
-        elif bet_type == BetType.BetType.FIRST_AND_SECOND_COLUMN:
-            return self.__column_selector.is_first_or_second_column(value)
-        elif bet_type == BetType.BetType.SECOND_AND_THIRD_COLUMN:
-            return self.__column_selector.is_second_or_third_column(value)
-        elif bet_type == BetType.BetType.FIRST_AND_THIRD_COLUMN:
-            return self.__column_selector.is_first_or_third_column(value)
 
     def process(self, bet_type: BetType, current_throw: int, file):
         file.write('Bet amount\t->\t' + str(self.get_bet_amount(bet_type)) + '\n')
@@ -268,3 +262,7 @@ class BetController:
             else:
                 self.update_bet_amount(bet_type)
         file.write('New balance\t\t->\t' + str(self.get_bet_balance()) + '\n')
+
+    def _add_if_not_already(self, bet_type: BetType.BetType):
+        if bet_type not in self.__next_bets:
+            self.__next_bets.append(bet_type)

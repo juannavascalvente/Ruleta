@@ -15,12 +15,6 @@ class BetType(Enum):
     FIRST_COLUMN = 11
     SECOND_COLUMN = 12
     THIRD_COLUMN = 13
-    FIRST_AND_SECOND_THIRD = 14
-    SECOND_AND_THIRD_THIRD = 15
-    FIRST_AND_THIRD_THIRD = 16
-    FIRST_AND_SECOND_COLUMN = 17
-    SECOND_AND_THIRD_COLUMN = 18
-    FIRST_AND_THIRD_COLUMN = 19
 
     def __get_message(self) -> str:
         return 'Bet: ' + self.__as_string()
@@ -59,18 +53,6 @@ class BetType(Enum):
             return 'SECOND THIRD'
         elif self == self.THIRD_THIRD:
             return 'THIRD THIRD'
-        elif self == self.FIRST_AND_SECOND_THIRD:
-            return 'FIRST AND SECOND THIRD'
-        elif self == self.FIRST_AND_THIRD_THIRD:
-            return 'FIRST AND THIRD THIRD'
-        elif self == self.SECOND_AND_THIRD_THIRD:
-            return 'SECOND AND THIRD THIRD'
-        elif self == self.FIRST_AND_SECOND_COLUMN:
-            return 'FIRST AND SECOND COLUMN'
-        elif self == self.FIRST_AND_THIRD_COLUMN:
-            return 'FIRST AND THIRD COLUMN'
-        elif self == self.SECOND_AND_THIRD_COLUMN:
-            return 'SECOND AND THIRD COLUMN'
         else:
             return 'UNKNOWN'
 
