@@ -1,3 +1,6 @@
+from Roulette.LogController import LogController
+
+
 class BetHalvesStats:
     def __init__(self):
         self.num_bets = 0
@@ -34,21 +37,23 @@ class BetHalvesStats:
         self.__increase_second_half_bets()
 
     def display(self):
-        print('--------------------------------- HALVES STATS ---------------------------------')
-        print('Number of HALVES bets: ' + str(self.num_bets))
+        LogController.display_header('HALVES STATS')
+        LogController.display('Number of HALVES bets: ' + str(self.num_bets))
         if self.num_bets > 0:
             if self.num_first_half_bets > 0:
-                print('Number of 1st HALF bets: ' + str(self.num_first_half_bets))
-                print('Correct 1st HALF bets: %d (%0.1f perc)' % (self.num_first_half_bets_won,
-                                                                  100.0*(float(self.num_first_half_bets_won) /
-                                                                         float(self.num_first_half_bets))))
+                LogController.display('Number of 1st HALF bets: ' + str(self.num_first_half_bets))
+                LogController.display('Correct 1st HALF bets: %d (%0.1f perc)' % (self.num_first_half_bets_won,
+                                                                                  100.0 * (float(
+                                                                                      self.num_first_half_bets_won) /
+                                                                                    float(self.num_first_half_bets))))
             else:
-                print('No 1st HALF bets')
+                LogController.display('No 1st HALF bets')
 
             if self.num_second_half_bets > 0:
-                print('Number of 2nd HALF bets: ' + str(self.num_second_half_bets))
-                print('Correct 2nd HALF bets: %d (%0.1f perc)' % (self.num_second_half_bets_won,
-                                                                  100.0*(float(self.num_second_half_bets_won) /
-                                                                         float(self.num_second_half_bets))))
+                LogController.display('Number of 2nd HALF bets: ' + str(self.num_second_half_bets))
+                LogController.display('Correct 2nd HALF bets: %d (%0.1f perc)' % (self.num_second_half_bets_won,
+                                                                                  100.0 * (float(
+                                                                                      self.num_second_half_bets_won) /
+                                                                                    float(self.num_second_half_bets))))
             else:
-                print('No 2nd HALF bets')
+                LogController.display('No 2nd HALF bets')

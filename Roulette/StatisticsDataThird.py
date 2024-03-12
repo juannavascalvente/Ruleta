@@ -1,4 +1,5 @@
 from Roulette import NonConsecutiveData, ThrowCheckerThird
+from Roulette import LogController
 
 
 class StatisticsDataThird:
@@ -42,30 +43,31 @@ class StatisticsDataThird:
         return '------------------------------ ' + self.__get_a_as_string() + '/' + self.__get_b_as_string() + '/' + \
             self.__get_c_as_string() + ' ------------------------------\n'
 
-    def write_stats(self, f):
-        f.write(self.__get_report_header())
+    def write_stats(self):
+        LogController.LogController.write(self.__get_report_header())
         num_a_sequences_without_zeros = self.__consecutive_A.getNumSequences()
         num_b_sequences_without_zeros = self.__consecutive_B.getNumSequences()
         num_c_sequences_without_zeros = self.__consecutive_C.getNumSequences()
-        num_sequences_without_zeros = num_a_sequences_without_zeros + num_b_sequences_without_zeros + \
-                                      num_c_sequences_without_zeros
-        f.write('Number of sequences (without zeros): ' + str(num_sequences_without_zeros) + '\n')
+        num_sequences_without_zeros = (num_a_sequences_without_zeros + num_b_sequences_without_zeros +
+                                       num_c_sequences_without_zeros)
+        LogController.LogController.write('Number of sequences (without zeros): ' + str(num_sequences_without_zeros) +
+                                          '\n')
 
-        self.__write_option(f, self.__consecutive_A)
+        self.__write_option(self.__consecutive_A)
 
-        self.__write_option(f, self.__consecutive_non_A)
+        self.__write_option(self.__consecutive_non_A)
 
-        self.__write_option(f, self.__consecutive_B)
+        self.__write_option(self.__consecutive_B)
 
-        self.__write_option(f, self.__consecutive_non_B)
+        self.__write_option(self.__consecutive_non_B)
 
-        self.__write_option(f, self.__consecutive_C)
+        self.__write_option(self.__consecutive_C)
 
-        self.__write_option(f, self.__consecutive_non_C)
+        self.__write_option(self.__consecutive_non_C)
 
-        self.__write_non_two_options(f, self.__consecutive_non_AB)
-        self.__write_non_two_options(f, self.__consecutive_non_BC)
-        self.__write_non_two_options(f, self.__consecutive_non_AC)
+        self.__write_non_two_options(self.__consecutive_non_AB)
+        self.__write_non_two_options(self.__consecutive_non_BC)
+        self.__write_non_two_options(self.__consecutive_non_AC)
 
         num_six_or_higher = self.__consecutive_A.getNumSequencesHigherThan(self.__BET_SEQUENCE_THRESHOLD) + \
                             self.__consecutive_B.getNumSequencesHigherThan(self.__BET_SEQUENCE_THRESHOLD) + \
@@ -84,28 +86,28 @@ class StatisticsDataThird:
         # else:
         #     f.write('Percentage sequences higher than threshold: %.1f\n' %
         #             (float(num_six_or_higher) / float(num_sequences_without_zeros) * 100.0))
-        f.write('Percentage ZERO or DOUBLE ZERO %.1f\n' % (float(self.__num_green) / float(self.__num_throws)
+        LogController.LogController.write('Percentage ZERO or DOUBLE ZERO %.1f\n' % (float(self.__num_green) / float(self.__num_throws)
                                                            * 100.0))
-        f.write('Percentage ' + self.__get_a_as_string() + ' %.1f\n' % (float(self.__num_As) / float(self.__num_throws)
+        LogController.LogController.write('Percentage ' + self.__get_a_as_string() + ' %.1f\n' % (float(self.__num_As) / float(self.__num_throws)
                                                                         * 100.0))
-        f.write('Percentage ' + self.__get_b_as_string() + ' %.1f\n' % (float(self.__num_Bs) / float(self.__num_throws)
+        LogController.LogController.write('Percentage ' + self.__get_b_as_string() + ' %.1f\n' % (float(self.__num_Bs) / float(self.__num_throws)
                                                                         * 100.0))
-        f.write('Percentage ' + self.__get_c_as_string() + ' %.1f\n' % (float(self.__num_Cs) / float(self.__num_throws)
+        LogController.LogController.write('Percentage ' + self.__get_c_as_string() + ' %.1f\n' % (float(self.__num_Cs) / float(self.__num_throws)
                                                                         * 100.0))
         assert (self.__num_As + self.__num_Bs + self.__num_Cs + self.__num_green == self.__num_throws)
 
-    def __write_option(self, f, data: NonConsecutiveData):
-        f.write(data.getOption() + ':\n')
+    def __write_option(self, data: NonConsecutiveData):
+        LogController.LogController.write(data.getOption() + ':\n')
         if data.isEmpty():
-            f.write('\tNONE\n')
+            LogController.LogController.write('\tNONE\n')
             return
         i = 0
         sequences = data.getSequences()
         for index in sequences:
             current_sequences = data.getSequencesAt(index)
-            f.write('\t' + str(index) + ' ->\t %d' % len(current_sequences) + '\n')
+            LogController.LogController.write('\t' + str(index) + ' ->\t %d' % len(current_sequences) + '\n')
             if index > 4:
-                f.write('\t' + str(index) + ' ->\t' + str(current_sequences) + '\n')
+                LogController.LogController.write('\t' + str(index) + ' ->\t' + str(current_sequences) + '\n')
 
     def update_stats(self, values: [int]):
 
@@ -223,47 +225,47 @@ class StatisticsDataThird:
 
         self.__check_sequences(values)
 
-    def __write_single_option(self, f, option: str, data: {}, sequences_data, num_sequences_without_zeros: int,
+    def __write_single_option(self, option: str, data: {}, sequences_data, num_sequences_without_zeros: int,
                               num_six_or_higher: int):
-        f.write(option + ':\n')
+        LogController.LogController.write(option + ':\n')
         if len(data) == 0:
-            f.write('\tNONE\n')
+            LogController.LogController.write('\tNONE\n')
             return
         i = 0
         for item in sorted(data):
             i += 1
-            f.write('\t' + str(item) + ' ->\t %d (%.1f)' %
+            LogController.LogController.write('\t' + str(item) + ' ->\t %d (%.1f)' %
                     (data[item], (float(data[item]) / float(num_sequences_without_zeros) * 100.0)) + ' %\n')
             if item > 4:
-                f.write('\t' + str(item) + ' ->\t' + str(sequences_data) + '\n')
+                LogController.LogController.write('\t' + str(item) + ' ->\t' + str(sequences_data) + '\n')
 
             if item > self.__BET_SEQUENCE_THRESHOLD:
                 num_six_or_higher += data[item]
 
-    def __write_non_single_option(self, f, option: str, data: {}, sequences_data, num_sequences_without_zeros: int):
-        f.write('NON ' + option + ':\n')
+    def __write_non_single_option(self, option: str, data: {}, sequences_data, num_sequences_without_zeros: int):
+        LogController.LogController.write('NON ' + option + ':\n')
         if len(data) == 0:
-            f.write('\tNONE\n')
+            LogController.LogController.write('\tNONE\n')
             return
         i = 0
         for item in sorted(data):
             i += 1
-            f.write('\t' + str(item) + ' ->\t %d (%.1f)' %
+            LogController.LogController.write('\t' + str(item) + ' ->\t %d (%.1f)' %
                     (data[item], (float(data[item]) / float(num_sequences_without_zeros) * 100.0)) + ' %\n')
             if item > 4:
-                f.write('\t' + str(item) + ' ->\t' + str(sequences_data[item]) + '\n')
+                LogController.LogController.write('\t' + str(item) + ' ->\t' + str(sequences_data[item]) + '\n')
 
-    def __write_non_two_options(self, f, data: NonConsecutiveData.NonConsecutiveData):
-        f.write(data.getOption() + ':\n')
+    def __write_non_two_options(self, data: NonConsecutiveData.NonConsecutiveData):
+        LogController.LogController.write(data.getOption() + ':\n')
         if data.isEmpty():
-            f.write('\tNONE\n')
+            LogController.LogController.write('\tNONE\n')
             return
         sequences = data.getSequences()
         for index in sequences:
             current_sequences = data.getSequencesAt(index)
-            f.write('\t' + str(index) + ' ->\t %d' % len(current_sequences) + '\n')
+            LogController.LogController.write('\t' + str(index) + ' ->\t %d' % len(current_sequences) + '\n')
             if index > 4:
-                f.write('\t' + str(index) + ' ->\t' + str(current_sequences) + '\n')
+                LogController.LogController.write('\t' + str(index) + ' ->\t' + str(current_sequences) + '\n')
 
     def __check_sequences(self, values: [int]):
         assert (self.__check_sequence(values, self.__consecutive_non_A))

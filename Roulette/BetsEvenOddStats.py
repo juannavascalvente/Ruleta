@@ -1,3 +1,6 @@
+from Roulette.LogController import LogController
+
+
 class BetEvenOddStats:
     def __init__(self):
         self.num_bets = 0
@@ -34,21 +37,21 @@ class BetEvenOddStats:
         self.__increase_odd_bets()
 
     def display(self):
-        print('--------------------------------- EVEN/ODD STATS ---------------------------------')
-        print('Number of even/odd bets: ' + str(self.num_bets))
+        LogController.display_header('EVEN/ODD STATS')
+        LogController.display('Number of even/odd bets: ' + str(self.num_bets))
         if self.num_bets > 0:
             if self.num_evens_bets > 0:
-                print('Number of EVEN bets: ' + str(self.num_evens_bets))
-                print('Correct EVEN bets: %d (%0.1f perc)' % (self.num_evens_bets_won,
+                LogController.display('Number of EVEN bets: ' + str(self.num_evens_bets))
+                LogController.display('Correct EVEN bets: %d (%0.1f perc)' % (self.num_evens_bets_won,
                                                               100.0*(float(self.num_evens_bets_won) /
                                                                      float(self.num_evens_bets))))
             else:
-                print('No EVEN bets')
+                LogController.display('No EVEN bets')
 
             if self.num_odds_bets > 0:
-                print('Number of ODD bets: ' + str(self.num_odds_bets))
-                print('Correct ODD bets: %d (%0.1f perc)' % (self.num_odds_bets_won,
+                LogController.display('Number of ODD bets: ' + str(self.num_odds_bets))
+                LogController.display('Correct ODD bets: %d (%0.1f perc)' % (self.num_odds_bets_won,
                                                              100.0*(float(self.num_odds_bets_won) /
                                                                     float(self.num_odds_bets))))
             else:
-                print('No ODD bets')
+                LogController.display('No ODD bets')

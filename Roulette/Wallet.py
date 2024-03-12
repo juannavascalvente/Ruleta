@@ -1,6 +1,6 @@
 from Roulette.BetType import BetType
-
-import locale
+from Roulette.LogController import LogController
+from colorama import Fore
 
 
 class Wallet:
@@ -190,20 +190,15 @@ class Wallet:
     def __reset_min_balance(self):
         self.__min_balance = 0.0
 
-    def display(self):
-        # locale.setlocale(locale.LC_ALL, 'en_EU')
-        print('\n\n----------------------------- WALLET STATISTICS --------------------------')
-        print('Max bet amount required:\t\t%s %s' % (f"{self.__max_bet:,.1f}", u"\N{euro sign}"))
-        print('Max accumulated bet required:\t%s %s' % (f"{self.__max_accumulated_bet:,.1f}", u"\N{euro sign}"))
-        print('Min balance during game:\t\t%s %s' % (f"{self.__min_balance:,.1f}", u"\N{euro sign}"))
-        print('Max balance during game:\t\t%s %s' % (f"{self.__max_balance:,.1f}", u"\N{euro sign}"))
-        print('Final balance after game:\t\t%s %s' % (f"{self.__balance:,.1f}", u"\N{euro sign}"))
-
-    def write(self, f):
-        locale.setlocale(locale.LC_ALL, 'en_EU')
-        f.write('\n\n----------------------------- WALLET STATISTICS --------------------------\n')
-        f.write('Max bet amount required:\t\t%s %s\n' % (f"{self.__max_bet:,.1f}", u"\N{euro sign}"))
-        f.write('Max accumulated bet required:\t%s %s\n' % (f"{self.__max_accumulated_bet:,.1f}", u"\N{euro sign}"))
-        f.write('Min balance during game:\t\t%s %s\n' % (f"{self.__min_balance:,.1f}", u"\N{euro sign}"))
-        f.write('Max balance during game:\t\t%s %s\n' % (f"{self.__max_balance:,.1f}", u"\N{euro sign}"))
-        f.write('Final balance after game:\t\t%s %s\n' % (f"{self.__balance:,.1f}", u"\N{euro sign}"))
+    def log(self):
+        LogController.display_header('WALLET STATISTICS')
+        LogController.log('Max bet amount required:\t\t%s %s' % (f"{self.__max_bet:,.1f}", u"\N{euro sign}"),
+                          Fore.YELLOW)
+        LogController.log('Max accumulated bet required:\t%s %s' % (f"{self.__max_accumulated_bet:,.1f}",
+                                                                    u"\N{euro sign}"), Fore.YELLOW)
+        LogController.log('Min balance during game:\t\t%s %s' % (f"{self.__min_balance:,.1f}", u"\N{euro sign}"),
+                          Fore.YELLOW)
+        LogController.log('Max balance during game:\t\t%s %s' % (f"{self.__max_balance:,.1f}", u"\N{euro sign}"),
+                          Fore.YELLOW)
+        LogController.log('Final balance after game:\t\t%s %s' % (f"{self.__balance:,.1f}", u"\N{euro sign}"),
+                          Fore.YELLOW)

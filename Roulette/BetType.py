@@ -1,4 +1,6 @@
 from enum import Enum
+from Roulette.LogController import LogController
+from colorama import Fore
 
 
 class BetType(Enum):
@@ -19,14 +21,17 @@ class BetType(Enum):
     def __get_message(self) -> str:
         return 'Bet: ' + self.__as_string()
 
-    def display(self, amount: str = None):
-        if amount is None:
-            print(self.__get_message())
-        else:
-            print(self.__get_message() + ' -> ' + amount + ' €')
+    def display(self, amount: str):
+        LogController.display(self.__get_message() + ' -> ' + amount + ' €')
 
-    def write(self, f):
-        f.write(self.__get_message() + '\n')
+    def display_result(self, is_win: bool):
+        if is_win:
+            LogController.display(self.__get_message() + ' -> WON', Fore.GREEN)
+        else:
+            LogController.display(self.__get_message() + ' -> LOST', Fore.RED)
+
+    def write(self):
+        LogController.write(self.__get_message() + '\n')
 
     def __as_string(self):
         if self == self.ODDS_BET:

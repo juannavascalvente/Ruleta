@@ -1,8 +1,10 @@
-from Roulette import BetType, ColorThrow, ColumnSelector, EvenOddThrow, RowSelector, ThirdSelector, Wallet, ZeroType
+from colorama import Fore
+from Roulette import (BetType, ColorThrow, ColumnSelector, LogController, EvenOddThrow, RowSelector, ThirdSelector,
+                      Wallet, ZeroType)
 
 
-def write_throws(f, throws: [int]):
-    f.write('Bet computed based on throws -> ' + str(throws) + '\n')
+def write_throws(throws: [int]):
+    LogController.LogController.log('Bet computed based on throws -> ' + str(throws) + '\n')
 
 
 class BetController:
@@ -28,10 +30,10 @@ class BetController:
         self.__bets.append([BetType.BetType.NO_BET])
 
     def display_bets(self):
-        print('----------------------------- RECOMMENDED BETS ----------------------------------')
+        LogController.LogController.display_header('RECOMMENDED BETS')
         for bet in self.get_bet():
             bet.display(str(self.__wallet.get_bet_amount(bet)))
-            print('---------------------------------------------------------------------------------')
+            LogController.LogController.display_header_end()
 
     def compute_bet(self, throws_two_options: [int], throws_three_options: [int], throws_combined: [int]) -> bool:
         self.__last_throws_two_options = throws_two_options
@@ -206,7 +208,7 @@ class BetController:
                    for value in self.__last_throws_combined_options)
 
     def display(self):
-        self.__wallet.display()
+        self.__wallet.log()
 
     def update_accumulated_bet(self, bet_type: BetType.BetType):
         self.__wallet.update_accumulated_bet(bet_type)
@@ -240,28 +242,26 @@ class BetController:
         elif bet_type == BetType.BetType.THIRD_COLUMN:
             return self.__column_selector.is_third_column(value)
 
-    def process(self, bet_type: BetType, current_throw: int, file):
-        file.write('Bet amount\t->\t' + str(self.get_bet_amount(bet_type)) + '\n')
+    def process(self, bet_type: BetType, current_throw: int):
+        LogController.LogController.write('Bet amount\t->\t' + str(self.get_bet_amount(bet_type)) + '\n')
         self.update_accumulated_bet(bet_type)
-        file.write('Bet accumulated\t->\t' + str(self.get_bet_accumulated(bet_type)) + '\n')
-        file.write('Max bet accumulated\t->\t' + str(self.get_max_bet_accumulated()) + '\n')
-        file.write('Balance\t\t->\t' + str(self.get_bet_balance()) + '\n')
-        bet_type.write(file)
+        LogController.LogController.write('Bet accumulated\t->\t' + str(self.get_bet_accumulated(bet_type)) + '\n')
+        LogController.LogController.write('Max bet accumulated\t->\t' + str(self.get_max_bet_accumulated()) + '\n')
+        LogController.LogController.write('Balance\t\t->\t' + str(self.get_bet_balance()) + '\n')
+        bet_type.write()
         if self.is_win(bet_type, current_throw):
-            file.write('Bet WON\n')
-            bet_type.display('\tBet WON\n**********')
+            bet_type.display_result(True)
             self.update_balance_win(bet_type)
             self.reset_bet_amount(bet_type)
         else:
-            file.write('Bet LOST\n')
-            bet_type.display('\tBet LOST\n**********')
+            bet_type.display_result(False)
             self.update_balance_lost(bet_type)
             if self.is_max_amount_lost(bet_type):
-                file.write('TOO MANY Bets LOST\n')
+                LogController.LogController.write('TOO MANY Bets LOST\n')
                 self.reset_bet_amount(bet_type)
             else:
                 self.update_bet_amount(bet_type)
-        file.write('New balance\t\t->\t' + str(self.get_bet_balance()) + '\n')
+        LogController.LogController.write('New balance\t\t->\t' + str(self.get_bet_balance()) + '\n')
 
     def _add_if_not_already(self, bet_type: BetType.BetType):
         if bet_type not in self.__next_bets:

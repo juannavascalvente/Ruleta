@@ -1,8 +1,8 @@
 from awscli.compat import raw_input
-from colorama import Fore
 
 from Roulette.BetController import BetController, write_throws
 from Roulette.ColorThrow import ColorThrow
+from Roulette.LogController import LogController
 from Roulette.ResultDisplay import ResultDisplay
 from Roulette.Statistics import Statistics
 from Roulette.ThrowGenerator import ThrowGenerator
@@ -18,20 +18,20 @@ def get_number() -> int:
         try:
             input_data = raw_input("Enter result from Roulette!\n")
             if len(input_data) > 2:
-                print(f'Wrong number entered \'{number}\', MUST be 00 or between 0 and 36')
+                LogController.display(f'Wrong number entered \'{number}\', MUST be 00 or between 0 and 36')
             else:
                 if input_data == "00":
                     number = 37
-                    print("You entered 00")
+                    LogController.display("You entered 00")
                 else:
                     number = int(input_data)
-                    print("You entered %d" % number)
+                    LogController.display("You entered %d" % number)
                 if (number >= 0) and (number <= 37):
                     is_correct_number = True
                 else:
-                    print(f'Wrong number entered \'{number}\', MUST be 00 or between 0 and 36')
+                    LogController.display(f'Wrong number entered \'{number}\', MUST be 00 or between 0 and 36')
         except ValueError:
-            print(f'Wrong number entered \'{input_data}\', MUST be 00 or between 0 and 36')
+            LogController.display(f'Wrong number entered \'{input_data}\', MUST be 00 or between 0 and 36')
 
     return number
 
@@ -53,7 +53,6 @@ class Game:
         self.__wallet = Wallet(self.__INITIAL_BET)
         self.__bet_controller = BetController(self.__wallet, data['BET_MODEL'])
         self.__statistics = Statistics()
-        self.__f = open("log.txt", "w")
         self.__throw_generator = ThrowGenerator(data['TWO_OPTIONS_LEN'], data['THREE_OPTIONS_LEN'],
                                                 data['COMBINED_OPTIONS_LEN'])
         self.__is_interactive = data['INTERACTIVE']
@@ -76,31 +75,31 @@ class Game:
 
         self.__statistics.update(self.__throw_generator.get_throws(), self.__bet_controller.get_bets_history())
         self.__statistics.display(self.__wallet)
-        self.__statistics.write(self.__f, self.__wallet)
+        self.__statistics.write(self.__wallet)
 
-        self.__f.close()
+        LogController.close()
 
     def display(self):
         color_throw = ColorThrow()
         for value in self.__throw_generator.get_throws():
             if color_throw.is_red(value):
-                print(Fore.RED, value)
+                LogController.display(value)
             elif color_throw.is_black(value):
-                print(Fore.BLACK, value)
+                LogController.display(value)
             else:
                 if value == ZeroType.DOUBLE_ZERO:
-                    print(Fore.GREEN, "00")
+                    LogController.display("00")
                 else:
-                    print(Fore.GREEN, value)
+                    LogController.display(value)
 
     def __play(self):
         self.__throw_generator.generate()
-        self.__f.write('Throws: ' + str(self.__throw_generator.get_throws()) + '\n')
+        LogController.write('Throws: ' + str(self.__throw_generator.get_throws()) + '\n')
 
         for i in range(1, self.__throw_generator.get_num_throws() + 1):
 
             if i < self.__min_num_throws:
-                self.__f.write('Not enough data in iteration ' + str(i) + '\n')
+                LogController.log('Not enough data in iteration ' + str(i) + '\n')
                 self.__bet_controller.add_history_not_bet()
                 continue
 
@@ -108,39 +107,39 @@ class Game:
             three_options_throws = self.__throw_generator.get_last_throws_for_three_options(i)
             combined_throws = self.__throw_generator.get_last_throws_for_combined_options(i)
             if self.__bet_controller.compute_bet(two_options_throws, three_options_throws, combined_throws):
-                write_throws(self.__f, two_options_throws)
+                write_throws(two_options_throws)
                 current_throw = self.__throw_generator.get_throw(i - 1)
 
                 if self.__is_interactive:
                     last_throws = self.__throw_generator.get_throws_range(i - self.__min_num_throws - 1, i - 1)
-                    print('Last throws are: ' + str(last_throws))
+                    LogController.display('Last throws are: ' + str(last_throws))
                     self.__bet_controller.display_bets()
                     input("Press Enter to continue...")
-                    ResultDisplay.display(current_throw)
 
-                ResultDisplay.write(self.__f, current_throw)
+                ResultDisplay.log(current_throw)
 
                 for bet_type in self.__bet_controller.get_bet():
-                    self.__bet_controller.process(bet_type, current_throw, self.__f)
+                    self.__bet_controller.process(bet_type, current_throw)
             else:
                 if self.__is_interactive:
                     last_throws = self.__throw_generator.get_throws_range(i - self.__min_num_throws - 1, i - 1)
-                    print('Last 10 throws are: ' + str(last_throws))
+                    LogController.display('Last 10 throws are: ' + str(last_throws))
                     self.__bet_controller.display_bets()
-                    print('No bet recommendation in iteration ' + str(i) + '\n')
+                    LogController.display('No bet recommendation in iteration ' + str(i) + '\n')
                     input("Press Enter to continue...")
 
-                self.__f.write('No bet recommendation in iteration ' + str(i) + '\n')
+                LogController.write('No bet recommendation in iteration ' + str(i) + '\n')
 
             self.__bet_controller.reset_bet()
-            self.__f.write('------------------------------------------------------------------------------------\n')
-            self.__f.flush()
+            LogController.display_header_end()
+            LogController.flush()
 
     def __play_live(self):
         for i in range(1, self.__throw_generator.get_num_throws() + 1):
 
             if i <= self.__min_num_throws:
-                self.__f.write('Not enough data in iteration ' + str(i) + '\n')
+
+                LogController.log('Not enough data in iteration ' + str(i) + '\n')
                 number = get_number()
                 self.__throw_generator.add_throw(number)
                 self.__bet_controller.add_history_not_bet()
@@ -150,27 +149,25 @@ class Game:
             three_options_throws = self.__throw_generator.get_last_throws_for_three_options(i)
             combined_throws = self.__throw_generator.get_last_throws_for_combined_options(i)
             if self.__bet_controller.compute_bet(two_options_throws, three_options_throws, combined_throws):
-                write_throws(self.__f, three_options_throws)
+                write_throws(three_options_throws)
 
                 last_throws = self.__throw_generator.get_throws_range(i - self.__min_num_throws - 1, i - 1)
-                print('Last throws are: ' + str(last_throws))
+                LogController.display('Last throws are: ' + str(last_throws))
                 self.__bet_controller.display_bets()
 
                 number = get_number()
                 self.__throw_generator.add_throw(number)
                 current_throw = self.__throw_generator.get_throw(i - 1)
-                ResultDisplay.write(self.__f, current_throw)
-                ResultDisplay.display(current_throw)
+                ResultDisplay.log(current_throw)
 
                 for bet_type in self.__bet_controller.get_bet():
-                    self.__bet_controller.process(bet_type, current_throw, self.__f)
+                    self.__bet_controller.process(bet_type, current_throw)
             else:
-                print('No bet recommendation in iteration ' + str(i) + '\n')
-                self.__f.write('No bet recommendation in iteration ' + str(i) + '\n')
+                LogController.display('No bet recommendation in iteration ' + str(i) + '\n')
                 number = get_number()
                 self.__throw_generator.add_throw(number)
 
             self.__bet_controller.reset_bet()
             self.__bet_controller.display()
-            self.__f.write('------------------------------------------------------------------------------------\n')
-            self.__f.flush()
+            LogController.display_header_end()
+            LogController.flush()

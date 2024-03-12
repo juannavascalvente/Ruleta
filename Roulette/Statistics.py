@@ -2,6 +2,7 @@ from Roulette import BetType, StatisticsDataThird, StatisticsDataHalf
 from Roulette import ColorThrow
 from Roulette import ColumnSelector
 from Roulette import EvenOddThrow
+from Roulette import LogController
 from Roulette import RowSelector
 from Roulette import StatsUtil
 from Roulette import ThirdSelector
@@ -56,27 +57,28 @@ class Statistics:
 
     def display(self, wallet: Wallet):
         self.__display_bets_forecast()
-        wallet.display()
+        wallet.log()
 
-    def write(self, f, wallet: Wallet):
-        self.__stats_even_odd.write_stats(f)
-        self.__stats_color.write_stats(f)
-        self.__stats_halves.write_stats(f)
-        self.__stats_columns.write_stats(f)
-        self.__stats_thirds.write_stats(f)
-        self.__write_bets_per_throw(f)
-        wallet.write(f)
+    def write(self, wallet: Wallet):
+        self.__stats_even_odd.write_stats()
+        self.__stats_color.write_stats()
+        self.__stats_halves.write_stats()
+        self.__stats_columns.write_stats()
+        self.__stats_thirds.write_stats()
+        self.__write_bets_per_throw()
+        wallet.log()
 
-    def __write_bets_per_throw(self, f):
-        f.write('\n\n---------------------------------- BETS STATISTICS ---------------------------------\n')
-        f.write('Number of throws ->\t\t\t\t\t' + str(self.num_throws) + '\n')
+    def __write_bets_per_throw(self):
+        LogController.LogController.display_header('BETS STATISTICS')
+        LogController.LogController.write('Number of throws ->\t\t\t\t\t' + str(self.num_throws) + '\n')
         total_bets = 0
         for item in sorted(self.bets_per_iteration):
-            f.write('Number of bets in iteration ' + str(item) + ' ->\t' + str(self.bets_per_iteration[item]) + '\n')
+            LogController.LogController.write('Number of bets in iteration ' + str(item) + ' ->\t' +
+                                              str(self.bets_per_iteration[item]) + '\n')
             total_bets += self.bets_per_iteration[item]
-        f.write('Number of bets ->\t\t\t\t\t' + str(total_bets) + '\n')
-        f.write('Percentage of bets in game ->\t\t%0.1f\n' %
-                StatsUtil.StatsUtil.percentage(total_bets, self.num_throws))
+        LogController.LogController.write('Number of bets ->\t\t\t\t\t' + str(total_bets) + '\n')
+        LogController.LogController.write('Percentage of bets in game ->\t\t%0.1f\n' %
+                                          StatsUtil.StatsUtil.percentage(total_bets, self.num_throws))
 
     def __compute_forecast_stats(self):
         for (throw, bets_in_throw) in zip(self.throws, self.bets_history):
@@ -92,10 +94,6 @@ class Statistics:
                     self.__compute_even_odd_stats(bet, throw)
                 elif BetType.BetTypeChecker.is_halves_bet(bet):
                     self.__compute_halves_stats(bet, throw)
-                # elif bet.is_thirds_bet(throw):
-                #     compute_thirds_stats(bet, throw)
-                # elif bet.is_columns_bet(throw):
-                #     compute_columns_stats(bet, throw)
 
             if num_bets > 0:
                 if num_bets in self.bets_per_iteration:
